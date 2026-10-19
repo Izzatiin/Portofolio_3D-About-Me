@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Nawfal's World — Mohammad Nawfal Arfa</title>
+    <meta
+      name="description"
+      content="Portofolio 3D interaktif Mohammad Nawfal Arfa — mahasiswa Linguistik Indonesia, video editor, content creator, dan pembuat IZZA, asisten AI lokal."
+    />
+    <meta name="theme-color" content="#9fd0ec" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nawfal's World — Mohammad Nawfal Arfa" />
+    <meta
+      property="og:description"
+      content="Jelajahi planet mini 3D berisi cerita, karya, dan kontak Mohammad Nawfal Arfa."
+    />
+    <meta property="og:url" content="https://izzatiin.github.io/Portofolio-Mohammad-Nawfal-Arfa/" />
+    <meta property="og:image" content="https://izzatiin.github.io/Portofolio-Mohammad-Nawfal-Arfa/assets/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/jpeg" href="icon.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Nunito:wght@500;700;800;900&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Nunito:wght@500;700;800;900&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <link rel="stylesheet" href="world.css" />
+  </head>
+  <body class="is-loading">
+    <canvas id="world" aria-label="Dunia 3D interaktif Nawfal" role="img"></canvas>
+
+    <!-- ===== Loading ===== -->
+    <div id="loader" class="loader" aria-live="polite">
+      <div class="loader-card paper-torn">
+        <span class="loader-title">Nawfal's World</span>
+      </div>
+      <div class="loader-tag" id="loader-text">Memuat…</div>
+    </div>
+
+    <!-- ===== Navigasi atas ===== -->
+    <header class="topbar">
+      <nav class="nav-pills" aria-label="Navigasi utama">
+        <button class="pill" data-go="about" aria-controls="panel-about" aria-expanded="false">About Me <span aria-hidden="true">›</span></button>
+        <button class="pill" data-go="skills" aria-controls="panel-skills" aria-expanded="false">Skills <span aria-hidden="true">›</span></button>
+        <button class="pill" data-go="work" aria-controls="panel-work" aria-expanded="false">My Work <span aria-hidden="true">›</span></button>
+        <button class="pill pill-new" data-go="izza" aria-controls="panel-izza" aria-expanded="false">IZZA <span class="pill-badge">baru</span></button>
+        <button class="pill" data-go="contact" aria-controls="panel-contact" aria-expanded="false">Contact <span aria-hidden="true">›</span></button>
+      </nav>
+    </header>
+
+    <!-- ===== Intro ===== -->
+    <section id="intro" class="intro" aria-labelledby="intro-title">
+      <p class="intro-name">Mohammad Nawfal Arfa</p>
+      <h1 id="intro-title" class="world-title">Nawfal's World</h1>
+      <p class="intro-sub">
+        <span id="typing-text">Linguistik Indonesia</span><span class="caret" aria-hidden="true">|</span>
+      </p>
+      <button id="explore-btn" class="btn-explore">Jelajahi Dunia <span aria-hidden="true">›</span></button>
+      <p class="intro-hint">
+        atau pilih menu di atas untuk langsung membaca
+      </p>
+    </section>
+
+    <!-- ===== HUD saat bermain ===== -->
+    <div class="hud" id="hud" inert>
+      <div class="hud-controls paper-chip" id="hud-controls">
+        <div class="keys">
+          <span class="key k-w">W</span>
+          <span class="key k-a">A</span>
+          <span class="key k-s">S</span>
+          <span class="key k-d">D</span>
+          <span class="key k-space">Space</span>
+        </div>
+        <div class="hud-text">
+          <strong>Jalan, lompat, Shift lari</strong>
+          <span>Seret untuk memutar kamera · gulir untuk zoom</span>
+        </div>
+      </div>
+      <button class="hud-prompt paper-chip" id="hud-prompt" type="button" hidden>
+        <span id="hud-prompt-text">Masuk</span>
+        <kbd>E</kbd>
+      </button>
+      <div class="hud-corner">
+        <button class="hud-home paper-chip" id="home-btn" type="button">
+          <span aria-hidden="true">⌂</span> Kembali ke awal
+        </button>
+      </div>
+      <p class="hud-touch-hint paper-chip" id="touch-hint">
+        Geser joystick untuk jalan · seret layar untuk memutar kamera · cubit untuk zoom
+      </p>
+    </div>
+
+    <!-- Kontrol sentuh (HP) -->
+    <div class="touch" id="touch" aria-hidden="true">
+      <div class="joystick" id="joystick"><div class="stick" id="stick"></div></div>
+      <button class="jump-btn" id="jump-btn" type="button" aria-label="Lompat">⤒</button>
+    </div>
+
+    <!-- Penanda lokasi bangunan (diposisikan dari JS) -->
+    <div id="labels" class="labels" aria-hidden="true"></div>
+
+    <!-- ===== Panel konten ===== -->
+    <div id="panel-backdrop" class="panel-backdrop" hidden></div>
+
+    <article
+      class="panel"
+      id="panel-about"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="about-title"
+      hidden
+    >
+      <button class="panel-close" type="button" aria-label="Tutup">✕</button>
+      <div class="panel-scroll">
+        <p class="panel-kicker">Rumah Nawfal · About Me</p>
+        <div class="about-head">
+          <img src="assets/foto-nawfal.jpg" alt="Foto Mohammad Nawfal Arfa" class="avatar" width="84" height="84" />
+          <div>
+            <h2 id="about-title">Hai, aku Nawfal!</h2>
+            <p class="panel-sub">Mohammad Nawfal Arfa</p>
+          </div>
+        </div>
+        <p class="tagline">
+          “Memperluas keterampilan dan menemukan cara-cara baru untuk berinovasi.”
+        </p>
+        <p class="lead">
+          Mahasiswa Linguistik Indonesia di Universitas Pembangunan Nasional
+          "Veteran" Jawa Timur yang antusias menggabungkan bahasa dan teknologi
+          digital. Selamat datang di sudut kecil duniaku.
+        </p>
+        <hr />
+        <h3 class="chip-title">Siapa aku?</h3>
+        <p>
+          Sebagai pembelajar otodidak, aku senang mengeksplorasi berbagai
+          keterampilan teknis, mulai dari dasar-dasar pemrograman hingga
+          produksi konten multimedia. Aku punya kemauan kuat untuk mempelajari
+          teknologi baru yang menunjang kreativitas, terutama di bidang
+          <strong>Video Editing</strong> dan <strong>Fotografi</strong>.
+        </p>
+        <h3 class="chip-title">Fokusku</h3>
+        <p>
+          Menciptakan karya yang inovatif dengan memanfaatkan alat-alat
+          teknologi terkini — dari cerita visual, situs web pertama yang
+          kubangun sendiri, sampai <strong>IZZA</strong>, asisten AI lokal yang
+          kini berjalan di ponsel.
+        </p>
+        <h3 class="chip-title">Kenapa sebuah planet kecil?</h3>
+        <p>
+          Karena portofolio tidak harus dibaca dari atas ke bawah. Di sini kamu
+          bisa berjalan-jalan, mampir ke tiap bangunan, dan menemukan ceritaku
+          dengan caramu sendiri.
+        </p>
+        <pre class="code-card" aria-label="Ringkasan dalam bentuk kode"><code>const creativeTech = {
+  name: 'Mohammad Nawfal Arfa',
+  role: 'Linguist &amp; Creative Creator',
+  passion: 'Exploring tech, self-taught coding, ' +
+           'and visual storytelling'
+};</code></pre>
+      </div>
+    </article>
+
+    <article
+      class="panel"
+      id="panel-skills"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="skills-title"
+      hidden
+    >
+      <button class="panel-close" type="button" aria-label="Tutup">✕</button>
+      <div class="panel-scroll">
+        <p class="panel-kicker">Bengkel Kreatif · Skills</p>
+        <h2 id="skills-title">Alat-alat di bengkelku</h2>
+        <p class="lead">
+          Keterampilan yang kupelajari dan terus kuasah, sebagian besar secara
+          otodidak.
+        </p>
+        <ul class="skill-list">
+          <li><span class="skill-ico" aria-hidden="true">🎬</span><div><strong>Video Editing</strong><span>CapCut &amp; Adobe Premiere</span></div></li>
+          <li><span class="skill-ico" aria-hidden="true">📷</span><div><strong>Fotografi &amp; Dokumentasi</strong><span>Menangkap momen dan cerita</span></div></li>
+          <li><span class="skill-ico" aria-hidden="true">🎨</span><div><strong>Desain Kreatif</strong><span>Canva</span></div></li>
+          <li><span class="skill-ico" aria-hidden="true">🗣️</span><div><strong>Komunikasi &amp; Analisis Bahasa</strong><span>Latar Linguistik Indonesia</span></div></li>
+          <li><span class="skill-ico" aria-hidden="true">📱</span><div><strong>Teknologi Digital &amp; Gadget</strong><span>Selalu penasaran dengan yang baru</span></div></li>
+          <li><span class="skill-ico" aria-hidden="true">🤖</span><div><strong>AI Lokal &amp; LLM</strong><span>Membangun IZZA: model GGUF, router model, dari laptop ke ponsel</span></div></li>
+          <li><span class="skill-ico" aria-hidden="true">💻</span><div><strong>Self-Taught Coding</strong><span>HTML, CSS &amp; Python (Flask)</span></div></li>
+        </ul>
+      </div>
+    </article>
+
+    <article
+      class="panel panel-wide"
+      id="panel-work"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="work-title"
+      hidden
+    >
+      <button class="panel-close" type="button" aria-label="Tutup">✕</button>
+      <div class="panel-scroll">
+        <p class="panel-kicker">Bioskop Mini · My Work</p>
+        <h2 id="work-title">Karya yang sedang diputar</h2>
+        <div class="project project-featured">
+          <span class="badge-new">✦ Proyek terbaru</span>
+          <img src="assets/izza/izza-sampul.jpg" alt="Sampul IZZA: AI pribadimu, di dalam ponsel" loading="lazy" />
+          <h3>IZZA — AI Lokal, dari Laptop ke Ponsel</h3>
+          <p>
+            Asisten AI buatanku yang berjalan sepenuhnya di perangkat sendiri:
+            tanpa internet, gratis, dan datanya tidak pernah keluar. Berawal di
+            laptop, kini hadir sebagai aplikasi ponsel dengan 16 model AI.
+          </p>
+          <div class="tags"><span>Python</span><span>Flask</span><span>GGUF / llama.cpp</span><span>Android</span></div>
+          <div class="links">
+            <button class="btn-paper" type="button" data-open="izza">Lihat IZZA ✦</button>
+            <a class="btn-paper ghost" href="https://github.com/Izzatiin/izza" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          </div>
+        </div>
+        <div class="project">
+          <img src="assets/simpang-kisah.jpg" alt="Poster film pendek Simpang Kisah: bangku taman kosong di persimpangan jalan saat senja" loading="lazy" />
+          <h3>Simpang Kisah — Film Pendek</h3>
+          <p>
+            Karya naratif audio-visual yang mengeksplorasi dinamika hubungan dan
+            percakapan. Aku bertanggung jawab penuh pada tahap pascaproduksi,
+            menyunting video dari awal hingga hasil akhir agar alur cerita
+            tersampaikan dengan emosi yang tepat kepada penonton.
+          </p>
+          <div class="tags"><span>CapCut</span><span>Adobe Premiere</span></div>
+          <div class="links">
+            <a class="btn-paper" href="https://www.youtube.com/watch?v=NS_WBhh4nmo" target="_blank" rel="noopener noreferrer">▶ Tonton Film</a>
+          </div>
+        </div>
+        <div class="project">
+          <img src="assets/web-pertama.jpg" alt="Tampilan situs web pertama Nawfal" loading="lazy" />
+          <h3>Web Pertama — Eksplorasi Kode Otodidak</h3>
+          <p>
+            Langkah awalku mempelajari pengembangan web secara mandiri. Lewat
+            belajar otodidak, aku membangun situs interaktif tersebut untuk memahami
+            struktur dasar HTML dan estetika desain dengan CSS — bukti dedikasiku
+            menguasai keterampilan baru di luar bidang studi utamaku.
+          </p>
+          <div class="tags"><span>HTML</span><span>CSS</span><span>Visual Studio Code</span></div>
+          <div class="links">
+            <a class="btn-paper" href="https://izzatiin.github.io/website-nawfalarfa/" target="_blank" rel="noopener noreferrer">Buka Proyek ↗</a>
+            <a class="btn-paper ghost" href="https://github.com/Izzatiin" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="panel panel-wide panel-izza"
+      id="panel-izza"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="izza-title"
+      hidden
+    >
+      <button class="panel-close" type="button" aria-label="Tutup">✕</button>
+      <div class="panel-scroll">
+        <p class="panel-kicker">Observatorium IZZA · Proyek terbaru</p>
+        <div class="izza-hero">
+          <img src="assets/izza/izza-logo.png" alt="Logo IZZA bersama maskotnya, Zet" class="izza-logo" width="320" height="96" />
+          <p class="izza-tagline">AI lokal di ponselmu.<span>Gratis · Privat · Tanpa internet</span></p>
+        </div>
+        <h2 id="izza-title">IZZA, asisten AI yang tinggal di perangkatmu sendiri</h2>
+        <p class="lead">
+          Proyek terbesarku sejauh ini. IZZA berawal sebagai asisten AI di satu
+          laptop: modelnya lokal, ingatannya lokal, dan obrolannya tidak pernah
+          meninggalkan mesin. Sekarang IZZA hadir di ponsel, dengan model AI yang
+          berjalan langsung di perangkat, tanpa internet, dan data yang tetap di
+          ponsel.
+        </p>
+        <div class="izza-videos">
+          <figure>
+            <video controls playsinline preload="none" poster="assets/izza/izza-promo-1.jpg" aria-label="Video promo IZZA pertama">
+              <source src="assets/izza/izza-promo-1.mp4" type="video/mp4" />
+              <source src="assets/izza/izza-promo-1.webm" type="video/webm" />
+            </video>
+            <figcaption>Video promo #1</figcaption>
+          </figure>
+          <figure>
+            <video controls playsinline preload="none" poster="assets/izza/izza-promo-2.jpg" aria-label="Video promo IZZA kedua">
+              <source src="assets/izza/izza-promo-2.mp4" type="video/mp4" />
+              <source src="assets/izza/izza-promo-2.webm" type="video/webm" />
+            </video>
+            <figcaption>Video promo #2</figcaption>
+          </figure>
+        </div>
+
+        <h3 class="chip-title">Versi ponsel</h3>
+        <ul class="feature-grid">
+          <li><span aria-hidden="true">💬</span><strong>Ngobrol apa saja</strong>Tulis kode, cari ide, terjemahkan, ringkas teks.</li>
+          <li><span aria-hidden="true">🔎</span><strong>Cari di web</strong>Lengkap dengan sumbernya, dari Brave Search sampai GitHub.</li>
+          <li><span aria-hidden="true">🎮</span><strong>Minta game, langsung main</strong>IZZA membuat game HTML + JavaScript yang bisa dimainkan saat itu juga.</li>
+          <li><span aria-hidden="true">✉️</span><strong>Email pintar</strong>Membantu menandai email yang berbau penipuan.</li>
+          <li><span aria-hidden="true">🔭</span><strong>Peta langit</strong>Rasi bintang dan planet di atas kepalamu, bisa di-zoom sampai Saturnus.</li>
+          <li><span aria-hidden="true">🎣</span><strong>Taman &amp; mancing angkasa</strong>Mini-game santai: 100 joran dan 1.000 makhluk untuk dikoleksi.</li>
+        </ul>
+        <p class="model-row">
+          <strong>16 model AI</strong> bisa dipilih:
+          <span>Gemma 4</span><span>Qwen 3</span><span>Llama 3.2</span><span>Gemma 3n</span><span>DeepSeek R1</span><span>+ cari sendiri</span>
+        </p>
+
+        <h3 class="chip-title">Versi laptop, asal mulanya</h3>
+        <ul class="check-list">
+          <li><strong>Jalan tanpa internet.</strong> Model <code>.gguf</code> di laptop sendiri lewat LM Studio atau llama-server.</li>
+          <li><strong>Memilih otaknya sendiri.</strong> Router membaca pesan lalu memilih model yang cocok: penalar, model koding, atau model kecil untuk sapaan.</li>
+          <li><strong>Merencanakan sebelum mengerjakan.</strong> Menulis langkah, mengerjakannya, lalu memeriksa langkah yang terlewat.</li>
+          <li><strong>Selalu minta izin.</strong> Sebelum menulis berkas atau menjalankan perintah, IZZA berhenti dan menunggu persetujuan.</li>
+          <li><strong>Pembaruan yang bisa dibuktikan.</strong> Rilis bertanda tangan Ed25519; yang tidak cocok tidak dipasang.</li>
+          <li><strong>Dipakai bersama.</strong> Banyak akun, izin per kemampuan, folder data terpisah. Dipakai bertujuh lewat satu laptop.</li>
+          <li><strong>450 uji otomatis.</strong> Tiap uji mewakili bug yang pernah benar-benar terjadi.</li>
+        </ul>
+        <div class="tags"><span>Python</span><span>Flask</span><span>llama.cpp / GGUF</span><span>LM Studio</span><span>Android</span><span>AI lokal</span></div>
+        <div class="links">
+          <a class="btn-paper" href="https://github.com/Izzatiin/izza" target="_blank" rel="noopener noreferrer">Kode sumber di GitHub ↗</a>
+        </div>
+        <p class="fineprint">
+          Maskot IZZA bernama Zet: huruf Z yang terlipat menjadi penghuni kecil.
+          Kode versi laptop dirilis dengan lisensi AGPL-3.0.
+        </p>
+      </div>
+    </article>
+
+    <article
+      class="panel"
+      id="panel-contact"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="contact-title"
+      hidden
+    >
+      <button class="panel-close" type="button" aria-label="Tutup">✕</button>
+      <div class="panel-scroll">
+        <p class="panel-kicker">Kantor Pos · Contact</p>
+        <h2 id="contact-title">Kirim surat, yuk!</h2>
+        <p class="lead">
+          Mari berkolaborasi! Aku selalu terbuka untuk mendiskusikan proyek
+          menarik dan peluang baru.
+        </p>
+        <ul class="contact-list">
+          <li><span aria-hidden="true">✉</span><a href="mailto:nawfalarfa14@gmail.com">nawfalarfa14@gmail.com</a></li>
+          <li><span aria-hidden="true">☎</span><a href="tel:+6281244573773">+62 812-4457-3773</a></li>
+          <li><span aria-hidden="true">⌖</span><span>Kota Gorontalo</span></li>
+        </ul>
+        <div class="socials">
+          <a href="https://wa.me/6281244573773" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <a href="https://github.com/Izzatiin" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/nawfal-arfa-496b3930b/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://www.instagram.com/izzatiin_/" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://www.facebook.com/Nawfal%20Arfa" target="_blank" rel="noopener noreferrer">Facebook</a>
+        </div>
+        <form id="contact-form" class="letter" action="mailto:nawfalarfa14@gmail.com" method="post" enctype="text/plain">
+          <label>Nama<input type="text" name="user_name" required autocomplete="name" /></label>
+          <label>Email<input type="email" name="user_email" required autocomplete="email" /></label>
+          <label>Pesan<textarea name="message" rows="4" required></textarea></label>
+          <button type="submit" class="btn-paper">Kirim Pesan ✈</button>
+          <p class="form-status" id="form-status" role="status"></p>
+        </form>
+      </div>
+    </article>
+
+    <noscript>
+      <div class="noscript">
+        Portofolio ini butuh JavaScript. Aktifkan JavaScript, atau hubungi aku di
+        <a href="mailto:nawfalarfa14@gmail.com">nawfalarfa14@gmail.com</a>.
+      </div>
+    </noscript>
+
+    <script>
+      // Jaring pengaman: kalau dunia 3D gagal dimuat, konten tetap bisa dibaca lewat menu.
+      window.__bootFail = function () {
+        if (window.__worldBooted || window.__fallbackActive) return;
+        window.__fallbackActive = true;
+        document.getElementById("loader").classList.add("is-done");
+        document.body.classList.remove("is-loading");
+        document.body.classList.add("no-webgl", "boot-failed");
+        var note = document.createElement("p");
+        note.className = "webgl-note";
+        note.innerHTML =
+          'Dunia 3D belum bisa dimuat. Pilih menu di atas untuk membaca isinya.';
+        document.getElementById("intro").appendChild(note);
+        var open = null;
+        function setOpen(id) {
+          if (open) open.hidden = true;
+          open = id ? document.getElementById("panel-" + id) : null;
+          if (open) open.hidden = false;
+          document.querySelectorAll(".pill").forEach(function (b) {
+            b.setAttribute("aria-expanded", String(b.dataset.go === id));
+          });
+        }
+        document.querySelectorAll(".pill").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (window.__fallbackActive) setOpen(b.dataset.go);
+          });
+        });
+        document.querySelectorAll(".panel-close").forEach(function (b) {
+          b.addEventListener("click", function () {
+            if (window.__fallbackActive) setOpen(null);
+          });
+        });
+        addEventListener("keydown", function (e) {
+          if (window.__fallbackActive && e.key === "Escape") setOpen(null);
+        });
+      };
+      setTimeout(window.__bootFail, 12000);
+    </script>
+    <script type="module" src="world.js" onerror="window.__bootFail()"></script>
+  </body>
+</html>
